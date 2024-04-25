@@ -19,6 +19,7 @@ def db_create() -> None:
         # Init balance to $0.0
         # TODO this needs to get todays date, instead of passing 0
         cur.execute(db_contract.INSERT_TRANSACTION, (1, 0.0, 'Initial', 0, 0.0, 0.0))
+        conn.commit()
         cur.close()
         conn.close()
 
@@ -27,15 +28,16 @@ def db_print_table() -> None:
     conn = sqlite3.connect(db_contract.DB_PATH)
     cur = conn.cursor()
     for row in cur.execute(f"SELECT * FROM {db_contract.LEDGER}"):
+        print("Inside the for Loop")
         print(row)
     cur.close()
     conn.close()
+
 # Admin database management ]]
 
 # [[ Runtime functions
 # Runtime functions ]]
 
 if __name__ == '__main__':
-    db_print_table()
-    # db_create()
+    db_create()
 

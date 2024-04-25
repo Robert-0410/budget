@@ -1,19 +1,19 @@
+#
 # TODO trying to find the best way to run the budget CLI app
-# TODO perhaps making the command -> make env <-
-# .Phony budget: venv/bin/activate
-# 	source venv/bin/activate
+#	Need to learn how to launch with pip???
 
-db: budgetenv/bin/activate
+
+db : venv deps
 	python3 db_manager.py
 
 # TODO Should requirements.txt be used???
-budgetenv/bin/activate:
-	python3 -m venv budgetenv
-	./budgetenv/bin/pip3 install typer
+deps : venv
+	venv/bin/pip3 install typer
 
+venv :
+	python3 -m venv venv
 
-# env: budgetenv/bin/activate
-# 	source budgetenv/bin/activate
-#
-# .PHONY: env
-.PHONY: db
+.PHONY : clean deps start
+clean :
+	rm -rf .database/ venv/
+
