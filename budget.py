@@ -5,8 +5,10 @@ import typer
 from typing_extensions import Annotated
 from typing import Optional
 
+from datetime import date
+
 # Local imports
-import db_contract
+from db_manager import db_print_table
 
 app = typer.Typer()
 
@@ -20,6 +22,21 @@ def add(amount: float) -> None:
 @app.command()
 def sub(amount: float) -> None:
     print(f"Subtracted: ${amount}")
+
+# TODO need a commands to edit transactions
+
+# TODO the goal of this command is too display only the data the user wishes to see.
+#   Perhaps it can take args such as: month range.
+@app.command()
+def display() -> None:
+    db_print_table()
+    today: date = date.today()
+    print("Date is: ", today)
+    ord: int = today.toordinal()
+    print("The int value: ", ord)
+    d: date = date.fromordinal(ord)
+    print("From ordinal is: ", d)
+
 
 
 # Using the following as a way to experiment with typer's features

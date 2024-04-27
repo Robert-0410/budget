@@ -7,7 +7,6 @@ DB_PATH = f'{DB_DIR}/ledger.db'
 LEDGER = 'ledger'
 
 # Columns
-UID = 'uid' # might not need this because of the ROWID default behavior of SQLite.
 DIRECTION = 'direction'
 AMOUNT = 'amount'
 FOR = 'for'
