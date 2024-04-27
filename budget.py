@@ -26,8 +26,14 @@ def add(amount: Annotated[float, typer.Argument()],
 
 
 @app.command()
-def sub(amount: float) -> None:
-    print(f"Subtracted: ${amount}")
+def sub(amount: Annotated[float, typer.Argument()],
+        reason: Annotated[str, typer.Argument()],
+        date: Annotated[Optional[datetime], typer.Argument()] = datetime.today()) -> None:
+    balance: float = db_insert_transaction(OUTGOING,
+                                           amount,
+                                           reason,
+                                           date.toordinal())
+    print("The new balance: $", balance)
 
 # TODO need a commands to edit transactions
 
