@@ -5,19 +5,25 @@ import typer
 from typing_extensions import Annotated
 from typing import Optional
 
-from datetime import date
+from datetime import datetime
 
 # Local imports
-from db_manager import db_print_table
+from db_contract import INCOMING, OUTGOING
+from db_manager import db_print_table, db_insert_transaction
 
 app = typer.Typer()
 
-#                       float  str str
-# TODO potentail args : amount for date
-#   date will be optional and will get the datetime from the system instead
+# TODO add optional date argument
 @app.command()
-def add(amount: float) -> None:
-    print(f"Added: ${amount}")
+def add(amount: Annotated[float, typer.Argument()],
+        reason: Annotated[str, typer.Argument()],
+        date: Annotated[Optional[datetime], typer.Argument()] = datetime.today()) -> None:
+    balance: float = db_insert_transaction(INCOMING,
+                                           amount,
+                                           reason,
+                                           date.toordinal())
+    print("The new balance: $", balance)
+
 
 @app.command()
 def sub(amount: float) -> None:
@@ -29,15 +35,8 @@ def sub(amount: float) -> None:
 #   Perhaps it can take args such as: month range.
 @app.command()
 def display() -> None:
+    print('Direction, Amount, Reason, Date, Before, Balance')
     db_print_table()
-    today: date = date.today()
-    print("Date is: ", today)
-    ord: int = today.toordinal()
-    print("The int value: ", ord)
-    d: date = date.fromordinal(ord)
-    print("From ordinal is: ", d)
-
-
 
 # Using the following as a way to experiment with typer's features
 @app.command()
