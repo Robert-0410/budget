@@ -2,6 +2,7 @@
 # Used to conduct all database related computation.
 
 from datetime import date
+from decimal import Decimal
 import os
 import sqlite3
 
@@ -33,26 +34,25 @@ def db_insert_transaction(direction: int,
     conn = sqlite3.connect(db_contract.DB_PATH)
     cur = conn.cursor()
     res = cur.execute(db_contract.SELECT_LAST_TRANSACTION)
-    last_balance: float = res.fetchone()[0]
-    new_balance: float
-    print("The last balance: ", last_balance)
+    prev_balance = res.fetchone()[0]
+    d_balance: Decimal = Decimal(prev_balance)
+    new_balance: Decimal
     if direction is db_contract.INCOMING:
-        new_balance = last_balance + amount
+        new_balance = d_balance + Decimal(amount)
     else:
-        new_balance = last_balance - amount
-    cur.execute(db_contract.INSERT_TRANSACTION, (direction, amount, reason, date, last_balance, new_balance))
+        new_balance = d_balance - Decimal(amount)
+    output = float(round(new_balance, 2))
+    cur.execute(db_contract.INSERT_TRANSACTION, (direction, amount, reason, date, prev_balance, output))
     conn.commit()
     cur.close()
     conn.close()
-    return new_balance
+    return output
 
 def db_print_table() -> None:
     conn = sqlite3.connect(db_contract.DB_PATH)
     cur = conn.cursor()
     for row in cur.execute(f"SELECT * FROM {db_contract.LEDGER}"):
         print(row)
-    res = cur.execute(f"SELECT rowid FROM {db_contract.LEDGER}")
-    print(res.fetchall())
     cur.close()
     conn.close()
 
