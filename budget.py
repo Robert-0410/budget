@@ -4,12 +4,15 @@
 import typer
 from typing_extensions import Annotated
 from typing import Optional
+from rich import print
+from rich.console import Console
+from rich.table import Table
 
-from datetime import datetime
+from datetime import datetime, date
 
 # Local imports
-from db_contract import INCOMING, OUTGOING
-from db_manager import db_print_table, db_insert_transaction
+from db_contract import LedgerColumns, INCOMING, OUTGOING
+from db_manager import db_get_transactions, db_insert_transaction
 
 app = typer.Typer()
 
@@ -22,7 +25,7 @@ def add(amount: Annotated[float, typer.Argument()],
                                            amount,
                                            reason,
                                            date.toordinal())
-    print("The new balance: $", balance)
+    print(f"The new balance: $[bold green]{balance}[/bold green]")
 
 
 @app.command()
@@ -33,7 +36,7 @@ def sub(amount: Annotated[float, typer.Argument()],
                                            amount,
                                            reason,
                                            date.toordinal())
-    print("The new balance: $", balance)
+    print(f"The new balance: $[bold red]{balance}[/bold red]")
 
 # TODO need a commands to edit transactions
 
@@ -41,8 +44,24 @@ def sub(amount: Annotated[float, typer.Argument()],
 #   Perhaps it can take args such as: month range.
 @app.command()
 def display() -> None:
-    print('Direction, Amount, Reason, Date, Before, Balance')
-    db_print_table()
+    transactions: list[tuple] = db_get_transactions()
+    table = Table(title='Ledger', show_lines=True)
+    table.add_column(str.upper(LedgerColumns.direction.name), style='cyan', justify='center')
+    table.add_column(str.upper(LedgerColumns.amount.name), justify='left', style='green')
+    table.add_column(str.upper(LedgerColumns.reason.name), style='cyan')
+    table.add_column(str.upper(LedgerColumns.date.name), style='green')
+    table.add_column(str.upper(LedgerColumns.before.name), style='cyan', justify='left')
+    table.add_column(str.upper(LedgerColumns.balance.name), style='green', justify='left')
+    for row in transactions:
+        direction, amount, reason, when, before, balance = row
+        d: str
+        if direction < 0:
+            d = '-'
+        else:
+            d = '+'
+        day = date.fromordinal(when)
+        table.add_row(d, f"${amount}", reason, str(day), f"${before}", f"${balance}")
+    print(table)
 
 # Using the following as a way to experiment with typer's features
 @app.command()

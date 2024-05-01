@@ -27,6 +27,28 @@ def db_create() -> None:
         cur.close()
         conn.close()
 
+def db_print_table() -> None:
+    conn = sqlite3.connect(db_contract.DB_PATH)
+    cur = conn.cursor()
+    for row in cur.execute(f"SELECT * FROM {db_contract.LEDGER}"):
+        print(row)
+    cur.close()
+    conn.close()
+
+# Admin database management ]]
+
+# [[ Runtime functions
+
+def db_get_transactions() -> list[tuple]:
+    output: list[tuple] = []
+    conn = sqlite3.connect(db_contract.DB_PATH)
+    cur = conn.cursor()
+    for row in cur.execute(f"SELECT * FROM {db_contract.LEDGER}"):
+        output.append(row)
+    cur.close()
+    conn.close()
+    return output
+
 def db_insert_transaction(direction: int,
                           amount: float,
                           reason: str,
@@ -48,17 +70,6 @@ def db_insert_transaction(direction: int,
     conn.close()
     return output
 
-def db_print_table() -> None:
-    conn = sqlite3.connect(db_contract.DB_PATH)
-    cur = conn.cursor()
-    for row in cur.execute(f"SELECT * FROM {db_contract.LEDGER}"):
-        print(row)
-    cur.close()
-    conn.close()
-
-# Admin database management ]]
-
-# [[ Runtime functions
 # Runtime functions ]]
 
 if __name__ == '__main__':
