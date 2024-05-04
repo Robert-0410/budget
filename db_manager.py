@@ -43,7 +43,7 @@ def db_get_transactions() -> list[tuple]:
     output: list[tuple] = []
     conn = sqlite3.connect(db_contract.DB_PATH)
     cur = conn.cursor()
-    for row in cur.execute(f"SELECT * FROM {db_contract.LEDGER}"):
+    for row in cur.execute(f"SELECT rowid, * FROM {db_contract.LEDGER}"):
         output.append(row)
     cur.close()
     conn.close()

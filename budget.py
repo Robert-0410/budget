@@ -21,8 +21,7 @@ app = typer.Typer()
 def add(amount: Annotated[float, typer.Argument()],
         reason: Annotated[str, typer.Argument()],
         date: Annotated[Optional[datetime], typer.Argument()] = datetime.today()) -> None:
-    balance: float = db_insert_transaction(INCOMING,
-                                           amount,
+    balance: float = db_insert_transaction(INCOMING, amount,
                                            reason,
                                            date.toordinal())
     print(f"The new balance: $[bold green]{balance}[/bold green]")
@@ -36,7 +35,7 @@ def sub(amount: Annotated[float, typer.Argument()],
                                            amount,
                                            reason,
                                            date.toordinal())
-    print(f"The new balance: $[bold red]{balance}[/bold red]")
+    print(f"The new balance: $[bold green]{balance}[/bold green]")
 
 # TODO need a commands to edit transactions
 
@@ -45,22 +44,23 @@ def sub(amount: Annotated[float, typer.Argument()],
 @app.command()
 def display() -> None:
     transactions: list[tuple] = db_get_transactions()
-    table = Table(title='Ledger', show_lines=True)
-    table.add_column(str.upper(LedgerColumns.direction.name), style='cyan', justify='center')
+    table = Table(title='[bold green]Ledger[/bold green]', show_lines=True)
+    table.add_column('ID', style='cyan', justify='center')
+    table.add_column(str.upper(LedgerColumns.direction.name), style='green', justify='center')
     table.add_column(str.upper(LedgerColumns.amount.name), justify='left', style='green')
     table.add_column(str.upper(LedgerColumns.reason.name), style='cyan')
     table.add_column(str.upper(LedgerColumns.date.name), style='green')
     table.add_column(str.upper(LedgerColumns.before.name), style='cyan', justify='left')
     table.add_column(str.upper(LedgerColumns.balance.name), style='green', justify='left')
     for row in transactions:
-        direction, amount, reason, when, before, balance = row
+        rowid, direction, amount, reason, when, before, balance = row
         d: str
         if direction < 0:
             d = '-'
         else:
             d = '+'
         day = date.fromordinal(when)
-        table.add_row(d, f"${amount}", reason, str(day), f"${before}", f"${balance}")
+        table.add_row(str(rowid), d, f"${amount}", reason, str(day), f"${before}", f"${balance}")
     print(table)
 
 # Using the following as a way to experiment with typer's features
